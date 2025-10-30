@@ -171,7 +171,11 @@ class InventoryDemandGenerator:
         visit_days = self.parse_visit_days(treatment_plan['Visit Days'])
         dispensing_freq = int(treatment_plan['Dispensing Frequency (Days)'])
         dispensing_qty = treatment_plan['Dispensing Quantity']
+
+        # Check both Study Drug Dispensed and Additional Study Drug Dispensed columns
         study_drug = treatment_plan['Study Drug Dispensed']
+        if pd.isna(study_drug) or str(study_drug).strip() == '':
+            study_drug = treatment_plan.get('Additional Study Drug Dispensed', '')
         
         # Get last visit info
         last_visit_date = pd.to_datetime(patient_row['Last Study Visit Date'])
@@ -447,13 +451,20 @@ def main():
         'TPC': ['n/a', 'n/a', 'Nab-Paclitaxel 100 mg/m2', 'Nab-Paclitaxel 100 mg/m2', 'Nab-Paclitaxel 100 mg/m2', 'Paclitaxel 90 mg/m2'],
         'Study Drug Dispensed': [
             'Sacituzumab Govitecan',
-            'Pembrolizumab',  # Separate row for second drug
+            '',  # Additional drug goes in Additional Study Drug Dispensed column
             'Nab-Paclitaxel',
-            'Pembrolizumab',  # Separate row for second drug
+            '',  # Additional drug goes in Additional Study Drug Dispensed column
             'Sacituzumab Govitecan',
             'Sacituzumab Govitecan'
         ],
-        'Additional Study Drug Dispensed': ['', '', '', '', '', ''],
+        'Additional Study Drug Dispensed': [
+            '',
+            'Pembrolizumab',  # Additional drug in separate column
+            '',
+            'Pembrolizumab',  # Additional drug in separate column
+            '',
+            ''
+        ],
         'Visit Days': ['1,8', '1,8', '1,8,15', '1,8,15', '1,8', '1,8'],
         'Dispensing Quantity': [4, 1, 1, 1, 4, 4],
         'Dispensing Frequency (Days)': [21, 21, 28, 28, 21, 21]
